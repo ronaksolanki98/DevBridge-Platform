@@ -1,4 +1,8 @@
-image: hashicorp/terraform:1.5.0
+image: ubuntu:22.04
+
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
 stages:
   - validate
@@ -6,6 +10,10 @@ stages:
   - apply
 
 before_script:
+  - apt-get update && apt-get install -y unzip curl
+  - curl -fsSL https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip -o terraform.zip
+  - unzip terraform.zip
+  - mv terraform /usr/local/bin/
   - terraform --version
 
 validate:
@@ -13,8 +21,6 @@ validate:
   script:
     - terraform init -backend=false
     - terraform validate
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
 
 plan:
   stage: plan
@@ -24,8 +30,6 @@ plan:
   artifacts:
     paths:
       - tfplan
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
 
 apply:
   stage: apply
@@ -33,5 +37,3 @@ apply:
     - terraform init
     - terraform apply -auto-approve tfplan
   when: manual
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
