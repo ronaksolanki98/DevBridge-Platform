@@ -1,103 +1,59 @@
-# terraform-main-infra
+# DevOps Bridge Platform
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-- [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/solankironak423/terraform-main-infra.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [Set up project integrations](https://gitlab.com/solankironak423/terraform-main-infra/-/settings/integrations)
-
-## Collaborate with your team
-
-- [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-- [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-- [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-- [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-- [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-- [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-- [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-- [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-- [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
-
----
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-
-Choose a self-explaining name for your project.
+![CI](https://img.shields.io/badge/ci-github_actions-blue)
+![Infra](https://img.shields.io/badge/infra-terraform-6DB33F)
 
 ## Description
+DevOps Bridge Platform is a production-grade reference stack that walks through building, testing, packaging, and deploying a Python FastAPI service into Azure using modular Terraform, Docker multi-stage builds, and Kubernetes manifests. It is intentionally minimal to stay approachable while showcasing clean architecture, separation of concerns, and CI/CD best practices that real teams ship every day.
 
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Features
+- FastAPI service with health/info endpoints and Pydantic-backed configuration
+- Docker multi-stage build + docker-compose for local development
+- Helm-free Kubernetes manifests (Deployment + Service) guarded by readiness/liveness probes
+- Terraform modules for resource group, VNet, storage, Key Vault, and App Service with tagging and secrets hygiene
+- GitHub Actions pipeline with test → image build/push → Kubernetes deployment stages
+- Scripts for local bootstrapping (`scripts/run-local.sh`, `scripts/run-tests.sh`)
 
 ## Badges
-
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+See the shields above for workflow and tooling status (link them as you hook up actual pipelines).
 
 ## Visuals
-
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+A simple architecture diagram is described in [docs/architecture.md](docs/architecture.md) and explains the flow: Developer commits → GitHub Actions runs tests/build/push → Kubernetes deployment consumes the image and Terraform-managed infrastructure.
 
 ## Installation
-
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+1. Clone the repo.
+2. Copy `configs/.env.example` to `.env` and adjust values when needed.
+3. Create a Python virtual environment: `python -m venv .venv && source .venv/bin/activate`.
+4. Install dependencies: `pip install -r app/requirements.txt`.
+5. (Optional) Build the Docker image: `docker build -f docker/Dockerfile -t devops-bridge .`.
+6. (Optional) Run locally: `./scripts/run-local.sh`.
 
 ## Usage
-
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+- Access `http://localhost:8000/health` or `/info` when the service is running locally or inside Kubernetes.
+- Exercises such as `./scripts/run-tests.sh` keep the service regression-free.
+- Terraform lives under `infrastructure/terraform`; follow [docs/setup.md](docs/setup.md) for provisioning guidance.
 
 ## Support
-
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Open issues or pull requests directly in this repository. Include logs/output from `scripts/run-local.sh`, `./scripts/run-tests.sh`, or `terraform plan` to accelerate triage.
 
 ## Roadmap
-
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+1. Chaotic deployment matrix (dev/staging/prod) via overlays or Helm.
+2. Automatic secrets injection from Key Vault/App Service identity.
+3. Monitoring/alerting integration (Prometheus/Grafana or Azure Monitor).
+4. End-to-end smoke tests that run post-deployment.
 
 ## Contributing
+1. Fork the repo and create a branch (e.g., `feature/your-change`).
+2. Run `./scripts/run-tests.sh` locally before opening a PR.
+3. Update documentation under `docs/` and `README.md` when introducing new behavior.
+4. Keep Terraform module changes isolated and documented via `modules/<name>` readme notes.
 
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser. abcd
-
-## Authors and acknowledgment
-
-Show your appreciation to those who have contributed to the project.
+## Authors and Acknowledgment
+- Original author: this DevOps reference builder.
+- Inspired by Real-World Infrastructure and GitHub Actions best practices.
 
 ## License
+This repository ships under the [MIT License](LICENSE) (create the file if you wish to open-source it).
 
-For open source projects, say how it is licensed.
-
-## Project status
-
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Project Status
+Active development — aim to keep the project polished and documented before presenting it to stakeholders. Feedback and contributions are welcome.

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.env
+.env.*
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+*.tfvars
+crash.log
+
+# Docker
+docker-compose.override.yml
+*.log
+
+# IDEs
+.vscode/
+*.swp
